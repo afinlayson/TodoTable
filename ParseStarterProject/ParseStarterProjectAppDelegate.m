@@ -15,11 +15,14 @@
 {
     // ****************************************************************************
     // Uncomment and fill in with your Parse credentials:
-    [Parse setApplicationId:@"APPLICATION_ID" clientKey:@"CLIENT_KEY"];
+    [Parse setApplicationId:@"AppID" clientKey:@"clientKey"];
 
     // Override point for customization after application launch.
 
     MyTableController *controller = [[MyTableController alloc] init];
+    
+    [PFFacebookUtils initializeWithApplicationId:@"FacebookID"];
+    [PFTwitterUtils initializeWithConsumerKey:@"TwitterConsumerKey" consumerSecret:@"ShhhTwitterSecret"];
     
     self.window.rootViewController = controller;
     [self.window makeKeyAndVisible];
@@ -30,29 +33,26 @@
     return YES;
 }
 
-/*
- 
 ///////////////////////////////////////////////////////////
 // Uncomment these two methods if you are using Facebook
 ///////////////////////////////////////////////////////////
  
 // Pre 4.2 support
 - (BOOL)application:(UIApplication *)application handleOpenURL:(NSURL *)url {
-    return [[PFUser facebook] handleOpenURL:url]; 
+    return [PFFacebookUtils handleOpenURL:url];
 }
- 
+
 // For 4.2+ support
 - (BOOL)application:(UIApplication *)application openURL:(NSURL *)url
     sourceApplication:(NSString *)sourceApplication annotation:(id)annotation {
-    return [[PFUser facebook] handleOpenURL:url]; 
+    return [PFFacebookUtils handleOpenURL:url]; 
 } 
  
-*/
 
 - (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)newDeviceToken
 {
     [PFPush storeDeviceToken:newDeviceToken];
-    [PFPush subscribeToChannelInBackground:@"" withTarget:self selector:@selector(subscribeFinished:error:)];
+    [PFPush subscribeToChannelInBackground:@"" target:self selector:@selector(subscribeFinished:error:)];
 }
 
 - (void)application:(UIApplication *)application didFailToRegisterForRemoteNotificationsWithError:(NSError *)error

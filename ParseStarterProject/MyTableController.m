@@ -40,6 +40,8 @@
 {
     [super viewDidLoad];
     
+    [PFUser logOut];
+    
     // Uncomment the following line to preserve selection between presentations.
     // self.clearsSelectionOnViewWillAppear = NO;
     
@@ -62,6 +64,15 @@
 - (void)viewDidAppear:(BOOL)animated
 {
     [super viewDidAppear:animated];
+    if (![PFUser currentUser]) {
+        PFLogInViewController *loginViewController = [[[PFLogInViewController alloc]init] autorelease];
+        loginViewController.fields = PFLogInFieldsFacebook | PFLogInFieldsTwitter | PFLogInFieldsSignUpButton | PFLogInFieldsUsernameAndPassword | PFLogInFieldsLogInButton | PFLogInFieldsPasswordForgotten;
+        loginViewController.delegate = self;
+        loginViewController.signUpController.delegate = self;
+        [self presentViewController:loginViewController animated:YES completion:nil];
+    } else {
+        [self loadObjects];
+    }
 }
 
 - (void)viewWillDisappear:(BOOL)animated
@@ -107,7 +118,13 @@
  // all objects ordered by createdAt descending.
 - (PFQuery *)queryForTable {
     PFQuery *query = [PFQuery queryWithClassName:self.className];
- 
+    
+    if ([PFUser currentUser]) {
+        [query whereKey:@"user" equalTo:[PFUser currentUser]];
+    } else {
+        [query whereKey:@"user" equalTo:@""];
+    }
+
     // If no objects are loaded in memory, we look to the cache first to fill the table
     // and then subsequently do a query against the network.
     if ([self.objects count] == 0) {
@@ -213,5 +230,68 @@
     [super tableView:tableView didSelectRowAtIndexPath:indexPath];
 }
 
+
+#pragma mark - PFLogInViewControllerDelegate
+
+- (BOOL)logInViewController:(PFLogInViewController *)logInController shouldBeginLogInWithUsername:(NSString *)username password:(NSString *)password
+{
+    if (username && password && [username length] > 0 && [password length] >= 4) {
+        return YES;
+    }
+    return NO;
+}
+
+- (void)logInViewController:(PFLogInViewController *)logInController didLogInUser:(PFUser *)user
+{
+    [logInController dismissViewControllerAnimated:YES completion:nil];
+}
+
+//- (void)logInViewController:(PFLogInViewController *)logInController didFailToLogInWithError:(NSError *)error
+//{
+//
+//}
+
+//- (void)logInViewControllerDidCancelLogIn:(PFLogInViewController *)logInController
+//{
+//
+//}
+
+#pragma mark - PFSignUpViewControllerDelegate
+
+- (BOOL)signUpViewController:(PFSignUpViewController *)signUpController shouldBeginSignUp:(NSDictionary *)info
+{
+    NSString * password = [info objectForKey:@"password"];
+    if ([password length] < 4) {
+        // Insert UIAlertView or other UI to warn the user that the length must be 4 characters or longer
+        return NO;
+    }
+    if ([password isEqualToString:@"password"]) {
+        // Insert UIAlertView or other UI to warn the user that the password must be stronger
+        return NO;
+    }
+    return YES;
+}
+
+- (void)signUpViewController:(PFSignUpViewController *)signUpController didSignUpUser:(PFUser *)user
+{
+    if (user) {
+        __block UIViewController *presentingViewController = [signUpController presentingViewController];
+        [signUpController dismissViewControllerAnimated:YES completion:^{
+            if ([PFUser currentUser]) {
+                [presentingViewController dismissViewControllerAnimated:YES completion:nil];
+            }
+        }];
+    }
+}
+
+//- (void)signUpViewController:(PFSignUpViewController *)signUpController didFailToSignUpWithError:(NSError *)error
+//{
+//    NSLog(@"%@",error);
+//}
+
+//- (void)signUpViewControllerDidCancelSignUp:(PFSignUpViewController *)signUpController
+//{
+//    
+//}
 
 @end
