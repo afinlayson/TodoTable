@@ -20,7 +20,7 @@
         self.className = @"Todo";
         
         // The key of the PFObject to display in the label of the default cell style
-        self.keyToDisplay = @"text";
+        self.textKey = @"text";
         
         // Whether the built-in pull-to-refresh is enabled
         self.pullToRefreshEnabled = YES;
