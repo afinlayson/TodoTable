@@ -40,8 +40,6 @@
 {
     [super viewDidLoad];
     
-    [PFUser logOut];
-    
     // Uncomment the following line to preserve selection between presentations.
     // self.clearsSelectionOnViewWillAppear = NO;
     
@@ -246,18 +244,25 @@
     [logInController dismissViewControllerAnimated:YES completion:nil];
 }
 
-//- (void)logInViewController:(PFLogInViewController *)logInController didFailToLogInWithError:(NSError *)error
-//{
-//
-//}
+/* 
+// PFLogInViewController delievers an UIAlertView when the login fails. Use this delegate method for additional tasks.
+- (void)logInViewController:(PFLogInViewController *)logInController didFailToLogInWithError:(NSError *)error
+{
 
-//- (void)logInViewControllerDidCancelLogIn:(PFLogInViewController *)logInController
-//{
-//
-//}
+}
+*/
+
+/*
+// In this example we have disabled the cancel button. 
+- (void)logInViewControllerDidCancelLogIn:(PFLogInViewController *)logInController
+{
+
+}
+ */
 
 #pragma mark - PFSignUpViewControllerDelegate
 
+// Provide limitations on user information. Here are two examples to include.
 - (BOOL)signUpViewController:(PFSignUpViewController *)signUpController shouldBeginSignUp:(NSDictionary *)info
 {
     NSString * password = [info objectForKey:@"password"];
@@ -274,24 +279,38 @@
 
 - (void)signUpViewController:(PFSignUpViewController *)signUpController didSignUpUser:(PFUser *)user
 {
-    if (user) {
+    if (user && [PFUser currentUser]) {
+  
+// Note during tutorial. If you wish to dismiss both view controllers in sequence Run this code.
+        /*
         __block UIViewController *presentingViewController = [signUpController presentingViewController];
         [signUpController dismissViewControllerAnimated:YES completion:^{
             if ([PFUser currentUser]) {
                 [presentingViewController dismissViewControllerAnimated:YES completion:nil];
             }
         }];
+         */
+        
+        // If the user logs in dismiss the the current PFLoginViewController and SignUpViewController in one action.
+        [signUpController.presentingViewController.presentingViewController dismissViewControllerAnimated:YES completion:nil];
+    } else {
+        // The current user has not logged in. Message the user accordingly.
+        [signUpController dismissViewControllerAnimated:YES completion:nil];
     }
 }
 
-//- (void)signUpViewController:(PFSignUpViewController *)signUpController didFailToSignUpWithError:(NSError *)error
-//{
-//    NSLog(@"%@",error);
-//}
+// Next two delegate methods are Optional
+/* The user is presented a UIAlertView in cases of the user choosing a duplicate username or email address. 
+- (void)signUpViewController:(PFSignUpViewController *)signUpController didFailToSignUpWithError:(NSError *)error
+{
 
-//- (void)signUpViewControllerDidCancelSignUp:(PFSignUpViewController *)signUpController
-//{
-//    
-//}
+}
+*/
 
+/* The PFSignUpViewController is dismissed automatically. Use this for additional tasks.
+- (void)signUpViewControllerDidCancelSignUp:(PFSignUpViewController *)signUpController
+{
+    
+}
+*/
 @end
