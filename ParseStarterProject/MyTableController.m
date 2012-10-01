@@ -245,7 +245,7 @@
 }
 
 /* 
-// PFLogInViewController delievers an UIAlertView when the login fails. Use this delegate method for additional tasks.
+// PFLogInViewController delivers an UIAlertView when the login fails. Use this delegate method for additional tasks.
 - (void)logInViewController:(PFLogInViewController *)logInController didFailToLogInWithError:(NSError *)error
 {
 
@@ -280,17 +280,6 @@
 - (void)signUpViewController:(PFSignUpViewController *)signUpController didSignUpUser:(PFUser *)user
 {
     if (user && [PFUser currentUser]) {
-  
-// Note during tutorial. If you wish to dismiss both view controllers in sequence Run this code.
-        /*
-        __block UIViewController *presentingViewController = [signUpController presentingViewController];
-        [signUpController dismissViewControllerAnimated:YES completion:^{
-            if ([PFUser currentUser]) {
-                [presentingViewController dismissViewControllerAnimated:YES completion:nil];
-            }
-        }];
-         */
-        
         // If the user logs in dismiss the the current PFLoginViewController and SignUpViewController in one action.
         [signUpController.presentingViewController.presentingViewController dismissViewControllerAnimated:YES completion:nil];
     } else {
